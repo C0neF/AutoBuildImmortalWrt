@@ -7,9 +7,9 @@ echo "Starting 99-custom.sh at $(date)" >> $LOGFILE
 uci set firewall.@zone[1].input='ACCEPT'
 
 # 设置主机名映射，解决安卓原生 TV 无法联网的问题
-uci add dhcp domain
-uci set "dhcp.@domain[-1].name=time.android.com"
-uci set "dhcp.@domain[-1].ip=203.107.6.88"
+# uci add dhcp domain
+# uci set "dhcp.@domain[-1].name=time.android.com"
+# uci set "dhcp.@domain[-1].ip=203.107.6.88"
 
 # 检查配置文件pppoe-settings是否存在 该文件由build.sh动态生成
 SETTINGS_FILE="/etc/config/pppoe-settings"
@@ -38,7 +38,7 @@ ifnames=$(echo "$ifnames" | awk '{$1=$1};1')
 if [ "$count" -eq 1 ]; then
    # 单网口设备 类似于NAS模式 动态获取ip模式 具体ip地址取决于上一级路由器给它分配的ip 也方便后续你使用web页面设置旁路由
    # 单网口设备 不支持修改ip 不要在此处修改ip 
-   uci set network.lan.proto='dhcp'
+   uci set network.lan.proto='static'
 elif [ "$count" -gt 1 ]; then
    # 提取第一个接口作为WAN
    wan_ifname=$(echo "$ifnames" | awk '{print $1}')
@@ -49,7 +49,7 @@ elif [ "$count" -gt 1 ]; then
    # 提取第一个接口作为WAN
    uci set network.wan.device="$wan_ifname"
    # WAN接口默认DHCP
-   uci set network.wan.proto='dhcp'
+   uci set network.wan.proto='static'
    # 设置WAN6绑定网口eth0
    uci set network.wan6=interface
    uci set network.wan6.device="$wan_ifname"
@@ -73,9 +73,9 @@ elif [ "$count" -gt 1 ]; then
    # 大家不能胡乱修改哦 比如有人修改为192.168.100.55 这是错误的理解 这个项目不能提前设置旁路地址
    # 旁路的设置分2类情况,情况一是单网口的设备,默认是DHCP模式，ip应该在上一级路由器里查看。之后进入web页在设置旁路。
    # 情况二旁路由如果是多网口设备，也应当用网关访问网页后，在自行在web网页里设置。总之大家不能直接在代码里修改旁路网关。千万不要徒增bug啦。
-   uci set network.lan.ipaddr='192.168.100.1'
+   uci set network.lan.ipaddr='192.168.2.1'
    uci set network.lan.netmask='255.255.255.0'
-   echo "set 192.168.100.1 at $(date)" >> $LOGFILE
+   echo "set 192.168.2.1 at $(date)" >> $LOGFILE
    # 判断是否启用 PPPoE
    echo "print enable_pppoe value=== $enable_pppoe" >> $LOGFILE
    if [ "$enable_pppoe" = "yes" ]; then
